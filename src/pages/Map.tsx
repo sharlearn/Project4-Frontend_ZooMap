@@ -2,7 +2,7 @@ import { MapContainer, TileLayer, GeoJSON } from "react-leaflet";
 import axios from "axios";
 import { backendUrl } from "../constants";
 import { useEffect, useState } from "react";
-import { PopupInfo } from "./Popup";
+import { PopupInfo } from "../components/Popup";
 
 interface Coordinates {
   id: number;
@@ -27,7 +27,6 @@ const Map = () => {
   const centerLat = 1.40378;
   const centerLng = 103.793881;
 
-  // const [locationDetails, setLocationDetails] = useState<Location[]>([]);
   const [show, setShow] = useState<boolean>(false);
   const [data, setData] = useState<Coordinates[]>();
   const [locationId, setLocationId] = useState<number>();
@@ -90,7 +89,7 @@ const Map = () => {
               setLocationId(e.layer.feature.properties.name);
             },
           }}
-        />
+        ></GeoJSON>
       )}
       {show && (
         <PopupInfo

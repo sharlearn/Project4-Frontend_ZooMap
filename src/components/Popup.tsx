@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
-import Button from "react-bootstrap/Button";
-import Modal from "react-bootstrap/Modal";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { backendUrl } from "../constants";
+import { LocationModal } from "./LocationModal";
+import { AnimalModal } from "./AnimalModal";
+import { BaseModal } from "./BaseModal";
 
 interface ModalProp {
   show: boolean;
@@ -17,19 +18,27 @@ interface Location {
   type: string;
 }
 
+interface AnimalDescription {
+  title: string;
+  content: string;
+}
+
 interface Animal {
   id: number;
   name: string;
   bannerUrl: string;
   iconUrl: string;
+  description: AnimalDescription[];
 }
 
 export const PopupInfo = (props: ModalProp): JSX.Element => {
-  const [animalData, setAnimalData] = useState<Animal[]>();
+  const [animalsData, setAnimalsData] = useState<Animal[]>();
   const [locationData, setLocationData] = useState<Location>();
   const [loading, setLoading] = useState(true);
+  const [dataType, setDataType] = useState<"location" | "animal">("location");
+  const [animalData, setAnimalData] = useState<Animal | null | undefined>();
 
-  let getData = async () => {
+  const getData = async () => {
     try {
       const location = await axios.get(
         `${backendUrl}/location/${props.locationId}`
@@ -39,47 +48,52 @@ export const PopupInfo = (props: ModalProp): JSX.Element => {
       const animal = await axios.get<Animal[]>(
         `${backendUrl}/animal/location/${props.locationId}`
       );
-      setAnimalData(animal.data);
+      setAnimalsData(animal.data);
     } catch (error) {
       console.log(error);
     }
   };
 
   useEffect(() => {
-    setLoading(true);
     getData().then(() => setLoading(false));
   }, []);
 
-  if (!locationData || !animalData || loading) {
+  const switchModals = (animalData: any) => {
+    console.log("this is firing");
+    console.log(animalData);
+    if (dataType === "location") {
+      setDataType("animal");
+      setAnimalData(animalData);
+    } else {
+      setDataType("location");
+      setAnimalData(null);
+    }
+  };
+
+  if (!locationData || !animalsData || loading) {
     return <div>Loading...</div>;
   }
 
   return (
-    <Modal show={props.show} onHide={props.handleClose}>
-      <Modal.Header closeButton>
-        <Modal.Title>{locationData.name}</Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
-        <p>{locationData.description}</p>
-        <h5>Animals In This Zone</h5>
-        <ul>
-          {animalData.map((data, index) => (
-            <li className="list-unstyled" key={index}>
-              <img
-                className="animal-icons"
-                src={data.iconUrl}
-                alt={data.name}
-              />
-              <p>{data.name}</p>
-            </li>
-          ))}
-        </ul>
-      </Modal.Body>
-      <Modal.Footer>
-        <Button variant="secondary" onClick={props.handleClose}>
-          Close
-        </Button>
-      </Modal.Footer>
-    </Modal>
+    <BaseModal
+      show={props.show}
+      handleClose={props.handleClose}
+      title={
+        dataType === "animal" && animalData
+          ? animalData.name
+          : locationData.name
+      }
+    >
+      {dataType === "location" && (
+        <LocationModal
+          locationData={locationData}
+          animalsData={animalsData}
+          switchModals={switchModals}
+        />
+      )}
+      {dataType === "animal" && animalData && (
+        <AnimalModal animalData={animalData} switchModals={switchModals} />
+      )}
+    </BaseModal>
   );
 };

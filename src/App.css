@@ -1,6 +1,7 @@
 .leaflet-container {
   width: 100dvw;
-  height: 100dvh;
+  height: 90dvh;
+  padding-top: 10dvh;
 }
 
 .animal-icons {
