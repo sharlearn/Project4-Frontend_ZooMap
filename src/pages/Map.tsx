@@ -1,8 +1,15 @@
-import { MapContainer, TileLayer, GeoJSON } from "react-leaflet";
 import axios from "axios";
 import { backendUrl } from "../constants";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { PopupInfo } from "../components/Popup";
+import { FeatureCollection, Geometry, GeoJsonProperties } from "geojson";
+import Map from "react-map-gl";
+import mapboxgl from "mapbox-gl"; // eslint-disable-line import/no-webpack-loader-syntax
+import { geoJson } from "../data/geoJsons";
+
+const mapboxAccesstoken = process.env.REACT_APP_MAPBOX_ACCESSTOKEN as string;
+
+// mapboxgl.accessToken = mapboxAccesstoken;
 
 interface Coordinates {
   id: number;
@@ -22,84 +29,70 @@ interface Features {
   };
 }
 
-const Map = () => {
+const MapDisplay = () => {
   //center coordinates for Singapore Zoo
   const centerLat = 1.40378;
   const centerLng = 103.793881;
 
   const [show, setShow] = useState<boolean>(false);
-  const [data, setData] = useState<Coordinates[]>();
+  // const [data, setData] = useState<Coordinates[]>();
   const [locationId, setLocationId] = useState<number>();
 
-  let dataRetrieval: Features[] = [];
+  // const mapContainer = useRef<any>(null);
 
-  let getData = async () => {
-    try {
-      const data = await axios.get<Coordinates[]>(`${backendUrl}/coordinates`);
-      setData(data.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  // useEffect(() => {
+  //   // if (map.current) return; // initialize map only once
+  //   const map = new mapboxgl.Map({
+  //     container: mapContainer.current,
+  //     style: "mapbox://styles/mapbox/streets-v12",
+  //     center: [centerLng, centerLat],
+  //     zoom: 17,
+  //   });
 
-  useEffect(() => {
-    getData();
-  }, []);
+  //   map.on("load", () => {
+  //     map.addSource("zones", {
+  //       type: "geojson",
+  //       data: geoJson as FeatureCollection,
+  //     });
 
-  if (data) {
-    for (const coordinate of data) {
-      dataRetrieval.push({
-        type: "Feature",
-        properties: {
-          name: coordinate.locationId.toString(),
-        },
-        geometry: {
-          coordinates: [coordinate.coordinates],
-          type: coordinate.type,
-        },
-      });
-    }
-  }
+  //     map.addLayer({
+  //       id: "zone-fills",
+  //       type: "fill",
+  //       source: "zones",
+  //       paint: {
+  //         "fill-color": "rgba(200, 100, 240, 0.4)",
+  //         "fill-outline-color": "rgba(200, 100, 240, 1)",
+  //       },
+  //     });
+  //   });
 
-  const mapData = {
-    type: "FeatureCollection" as const,
-    features: dataRetrieval,
-  };
+  //   // Add navigation control (the +/- zoom buttons)
+  //   map.addControl(new mapboxgl.NavigationControl(), "top-right");
+
+  //   return () => map.remove();
+  // }, []);
 
   const closeModal = () => setShow(false);
 
   return (
-    <MapContainer
-      center={[centerLat, centerLng]}
-      zoom={17}
-      scrollWheelZoom={true}
-    >
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        maxZoom={19}
-        minZoom={17}
+    // <div>
+    //   <div ref={mapContainer} className="map-container" />
+    // </div>
+    <>
+      <Map
+        initialViewState={{
+          latitude: centerLat,
+          longitude: centerLng,
+          zoom: 17,
+          bearing: 0,
+          pitch: 0,
+        }}
+        style={{ width: "100dvw", height: "100dvh" }}
+        mapStyle="mapbox://styles/mapbox/streets-v12"
+        mapboxAccessToken={mapboxAccesstoken}
       />
-      {data && (
-        <GeoJSON
-          data={mapData}
-          eventHandlers={{
-            click: (e) => {
-              setShow(!show);
-              setLocationId(e.layer.feature.properties.name);
-            },
-          }}
-        ></GeoJSON>
-      )}
-      {show && (
-        <PopupInfo
-          show={show}
-          handleClose={closeModal}
-          locationId={locationId}
-        />
-      )}
-    </MapContainer>
+    </>
   );
 };
 
-export default Map;
+export default MapDisplay;
