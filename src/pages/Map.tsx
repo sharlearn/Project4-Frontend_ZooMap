@@ -1,33 +1,20 @@
 import axios from "axios";
 import { backendUrl } from "../constants";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { PopupInfo } from "../components/Popup";
-import { FeatureCollection, Geometry, GeoJsonProperties } from "geojson";
-import Map from "react-map-gl";
-import mapboxgl from "mapbox-gl"; // eslint-disable-line import/no-webpack-loader-syntax
-import { geoJson } from "../data/geoJsons";
+import { FeatureCollection } from "geojson";
+import Map, {
+  Source,
+  Layer,
+  FillLayer,
+  GeolocateControl,
+  NavigationControl,
+  SymbolLayer,
+} from "react-map-gl";
+
+import geoJson from "../data/geoJson.json";
 
 const mapboxAccesstoken = process.env.REACT_APP_MAPBOX_ACCESSTOKEN as string;
-
-// mapboxgl.accessToken = mapboxAccesstoken;
-
-interface Coordinates {
-  id: number;
-  locationId: number;
-  type: string;
-  coordinates: any;
-}
-
-interface Features {
-  type: string;
-  properties: {
-    name: string;
-  };
-  geometry: {
-    coordinates: number[][];
-    type: string;
-  };
-}
 
 const MapDisplay = () => {
   //center coordinates for Singapore Zoo
@@ -35,62 +22,75 @@ const MapDisplay = () => {
   const centerLng = 103.793881;
 
   const [show, setShow] = useState<boolean>(false);
-  // const [data, setData] = useState<Coordinates[]>();
-  const [locationId, setLocationId] = useState<number>();
+  const [locationId, setLocationId] = useState<number | null>(null);
 
-  // const mapContainer = useRef<any>(null);
+  const handleClick = useCallback((event: any) => {
+    if (event.features[0]) {
+      setShow(true);
+      const { features } = event;
 
-  // useEffect(() => {
-  //   // if (map.current) return; // initialize map only once
-  //   const map = new mapboxgl.Map({
-  //     container: mapContainer.current,
-  //     style: "mapbox://styles/mapbox/streets-v12",
-  //     center: [centerLng, centerLat],
-  //     zoom: 17,
-  //   });
+      const clickFeature = features[0].properties.locationId;
 
-  //   map.on("load", () => {
-  //     map.addSource("zones", {
-  //       type: "geojson",
-  //       data: geoJson as FeatureCollection,
-  //     });
+      setLocationId(clickFeature);
+    } else return;
+  }, []);
 
-  //     map.addLayer({
-  //       id: "zone-fills",
-  //       type: "fill",
-  //       source: "zones",
-  //       paint: {
-  //         "fill-color": "rgba(200, 100, 240, 0.4)",
-  //         "fill-outline-color": "rgba(200, 100, 240, 1)",
-  //       },
-  //     });
-  //   });
+  const closeModal = () => {
+    setShow(false);
+    setLocationId(null);
+  };
 
-  //   // Add navigation control (the +/- zoom buttons)
-  //   map.addControl(new mapboxgl.NavigationControl(), "top-right");
+  const zoneLayer: FillLayer = {
+    id: "park-zones",
+    type: "fill",
+    paint: {
+      "fill-color": "#000fff",
+      "fill-opacity": 0.5,
+    },
+    filter: ["==", "$type", "Polygon"],
+  };
 
-  //   return () => map.remove();
-  // }, []);
-
-  const closeModal = () => setShow(false);
+  const geolocateControlRef = useCallback((ref: any) => {
+    if (ref) {
+      // Activate as soon as the control is loaded
+      ref.trigger();
+    }
+  }, []);
 
   return (
-    // <div>
-    //   <div ref={mapContainer} className="map-container" />
-    // </div>
     <>
       <Map
         initialViewState={{
           latitude: centerLat,
           longitude: centerLng,
           zoom: 17,
-          bearing: 0,
-          pitch: 0,
         }}
-        style={{ width: "100dvw", height: "100dvh" }}
-        mapStyle="mapbox://styles/mapbox/streets-v12"
+        style={{ width: "100vw", height: "100vh" }}
+        mapStyle="mapbox://styles/sharlearn/clgkze4hw008r01qqfxaih136"
         mapboxAccessToken={mapboxAccesstoken}
-      />
+        interactiveLayerIds={["park-zones"]}
+        onClick={handleClick}
+        reuseMaps
+      >
+        <NavigationControl />
+        <GeolocateControl
+          position="top-right"
+          ref={geolocateControlRef}
+          showUserHeading={true}
+          showUserLocation={true}
+          showAccuracyCircle={false}
+        />
+        <Source type="geojson" data={geoJson as FeatureCollection}>
+          <Layer {...zoneLayer} />
+        </Source>
+      </Map>
+      {locationId && (
+        <PopupInfo
+          show={show}
+          handleClose={closeModal}
+          locationId={locationId}
+        />
+      )}
     </>
   );
 };

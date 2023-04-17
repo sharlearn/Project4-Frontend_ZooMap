@@ -1,4 +1,13 @@
+.map-container {
+  width: 100dvw;
+  height: 100dvh;
+}
+
 .animal-icons {
   max-width: 100px;
   height: auto;
+}
+
+.base-modal {
+  z-index: 999;
 }

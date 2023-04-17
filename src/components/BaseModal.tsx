@@ -11,7 +11,7 @@ interface ModalProp {
 
 export const BaseModal = (props: ModalProp): JSX.Element => {
   return (
-    <Modal show={props.show} onHide={props.handleClose}>
+    <Modal show={props.show} onHide={props.handleClose} className="base-modal">
       <Modal.Header closeButton>
         <Modal.Title>{props.title}</Modal.Title>
       </Modal.Header>
