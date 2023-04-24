@@ -1,15 +1,15 @@
 import axios from "axios";
 import { backendUrl } from "../constants";
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { PopupInfo } from "../components/Popup";
-import { FeatureCollection } from "geojson";
+import { Feature, FeatureCollection } from "geojson";
 import Map, {
   Source,
   Layer,
   FillLayer,
   GeolocateControl,
   NavigationControl,
-  SymbolLayer,
+  LineLayer,
 } from "react-map-gl";
 
 import geoJson from "../data/geoJson.json";
@@ -44,18 +44,40 @@ const MapDisplay = () => {
     id: "park-zones",
     type: "fill",
     paint: {
-      "fill-color": "#000fff",
+      "fill-color": [
+        "match",
+        ["get", "type"],
+        "zone",
+        "#000fff",
+        "enclosure",
+        "yellow",
+        "green",
+      ],
       "fill-opacity": 0.5,
     },
-    filter: ["==", "$type", "Polygon"],
+    filter: ["!=", ["get", "name"], "Zoo-Boundary"],
   };
 
-  const geolocateControlRef = useCallback((ref: any) => {
-    if (ref) {
-      // Activate as soon as the control is loaded
-      ref.trigger();
-    }
-  }, []);
+  const zooOutlineLayer: LineLayer = {
+    id: "park-outline",
+    type: "line",
+    paint: {
+      "line-color": "black",
+    },
+    filter: ["==", ["get", "name"], "Zoo-Boundary"],
+  };
+
+  const zooOuterBoundaryLayer: FillLayer = {
+    id: "outer-fill",
+    type: "fill",
+    paint: {
+      "fill-color": "grey",
+      "fill-opacity": 0.6,
+    },
+    filter: ["==", ["get", "name"], "Zoo-Boundary"],
+  };
+
+  // const markerLayer: SymbolLayer = {};
 
   return (
     <>
@@ -75,13 +97,21 @@ const MapDisplay = () => {
         <NavigationControl />
         <GeolocateControl
           position="top-right"
-          ref={geolocateControlRef}
+          // ref={geolocateControlRef}
           showUserHeading={true}
           showUserLocation={true}
           showAccuracyCircle={false}
+          trackUserLocation={true}
+          fitBoundsOptions={{ maxZoom: 17 }}
         />
-        <Source type="geojson" data={geoJson as FeatureCollection}>
+        <Source
+          id="park-zones"
+          type="geojson"
+          data={geoJson as FeatureCollection}
+        >
           <Layer {...zoneLayer} />
+          <Layer {...zooOutlineLayer} />
+          <Layer {...zooOuterBoundaryLayer} />
         </Source>
       </Map>
       {locationId && (
