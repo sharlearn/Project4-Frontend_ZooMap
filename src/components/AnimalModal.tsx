@@ -1,18 +1,7 @@
-import React from "react";
 import Modal from "react-bootstrap/Modal";
-
-interface AnimalDescription {
-  title: string;
-  content: string;
-}
-
-interface Animal {
-  id: number;
-  name: string;
-  bannerUrl: string;
-  iconUrl: string;
-  description: AnimalDescription[];
-}
+import Button from "react-bootstrap/Button";
+import { AnimalDescriptionTabs } from "./AnimalDescriptionTabs";
+import { Animal } from "../list";
 
 export const AnimalModal = ({
   animalData,
@@ -22,8 +11,17 @@ export const AnimalModal = ({
   switchModals: (data: any) => void;
 }) => {
   return (
-    <Modal.Body>
-      <img className="modal-banner" src={animalData.bannerUrl} alt="banner" />
-    </Modal.Body>
+    <>
+      <Modal.Body>
+        <img className="modal-banner" src={animalData.bannerUrl} alt="banner" />
+        {/* <p>Lifespan: {animalData.lifespan}</p>
+        <p>Diet: {animalData.diet}</p>
+        <p>Habitat: {animalData.habitat}</p> */}
+        <AnimalDescriptionTabs data={animalData} />
+      </Modal.Body>
+      <Button variant="secondary" onClick={switchModals}>
+        Back to Zone
+      </Button>
+    </>
   );
 };

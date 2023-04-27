@@ -1,4 +1,3 @@
-import React from "react";
 import Modal from "react-bootstrap/Modal";
 
 interface Location {
@@ -19,13 +18,19 @@ export const LocationModal = ({
   locationData,
   animalsData,
   switchModals,
+  banner,
 }: {
   locationData: Location;
   animalsData: Animal[];
   switchModals: (data: any) => void;
+  banner: string | null;
 }) => {
+  console.log(banner);
   return (
     <Modal.Body>
+      {banner && (
+        <img className="location-banner" src={banner} alt="location banner" />
+      )}
       <p>{locationData.description}</p>
       <h5>Animals In This Zone</h5>
       <ul>

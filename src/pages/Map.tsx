@@ -1,8 +1,8 @@
 import axios from "axios";
 import { backendUrl } from "../constants";
-import { useEffect, useState, useRef, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { PopupInfo } from "../components/Popup";
-import { Feature, FeatureCollection } from "geojson";
+import { FeatureCollection } from "geojson";
 import Map, {
   Source,
   Layer,
@@ -10,34 +10,66 @@ import Map, {
   GeolocateControl,
   NavigationControl,
   LineLayer,
+  LngLatBoundsLike,
+  Marker,
 } from "react-map-gl";
-
-import geoJson from "../data/geoJson.json";
+import Example from "../components/OffCanvas";
 
 const mapboxAccesstoken = process.env.REACT_APP_MAPBOX_ACCESSTOKEN as string;
+
+interface LocationProperties {
+  name: string;
+  locationId: number;
+  type: string;
+  iconUrl: string | null;
+}
 
 const MapDisplay = () => {
   //center coordinates for Singapore Zoo
   const centerLat = 1.40378;
   const centerLng = 103.793881;
+  const mapBounds: LngLatBoundsLike = [
+    [103.78009399848185, 1.39375947531542],
+    [103.802887890264, 1.4117374325057739],
+  ];
 
+  const [geojsonData, setGeojsonData] = useState<FeatureCollection | null>(
+    null
+  );
   const [show, setShow] = useState<boolean>(false);
-  const [locationId, setLocationId] = useState<number | null>(null);
+  const [locationProperties, setLocationProperties] =
+    useState<LocationProperties | null>(null);
+  const [locationURL, setLocationURL] = useState<string | null>(null);
+
+  let getData = async () => {
+    try {
+      const data = await axios.get(`${backendUrl}/geojson`);
+      //geoJson feature collection within data gotten
+      setGeojsonData(data.data[0].data[0]);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    getData();
+  }, []);
+  console.log(geojsonData);
 
   const handleClick = useCallback((event: any) => {
     if (event.features[0]) {
       setShow(true);
       const { features } = event;
 
-      const clickFeature = features[0].properties.locationId;
+      const clickFeature = features[0].properties;
 
-      setLocationId(clickFeature);
+      setLocationProperties(clickFeature);
     } else return;
   }, []);
 
   const closeModal = () => {
     setShow(false);
-    setLocationId(null);
+    setLocationProperties(null);
   };
 
   const zoneLayer: FillLayer = {
@@ -53,7 +85,7 @@ const MapDisplay = () => {
         "yellow",
         "green",
       ],
-      "fill-opacity": 0.5,
+      "fill-opacity": 0.4,
     },
     filter: ["!=", ["get", "name"], "Zoo-Boundary"],
   };
@@ -77,7 +109,10 @@ const MapDisplay = () => {
     filter: ["==", ["get", "name"], "Zoo-Boundary"],
   };
 
-  // const markerLayer: SymbolLayer = {};
+  const [showOffCanvas, setShowOffCanvas] = useState(false);
+
+  const closeOffCanvas = () => setShowOffCanvas(false);
+  const handleShowOffCanvas = () => setShowOffCanvas(true);
 
   return (
     <>
@@ -85,19 +120,22 @@ const MapDisplay = () => {
         initialViewState={{
           latitude: centerLat,
           longitude: centerLng,
-          zoom: 17,
+          zoom: 16,
+          bearing: 90,
         }}
-        style={{ width: "100vw", height: "100vh" }}
+        maxBounds={mapBounds}
+        minZoom={15}
+        style={{ width: "100dvw", height: "100dvh" }}
         mapStyle="mapbox://styles/sharlearn/clgkze4hw008r01qqfxaih136"
         mapboxAccessToken={mapboxAccesstoken}
         interactiveLayerIds={["park-zones"]}
+        // onClick={handleShowOffCanvas}
         onClick={handleClick}
         reuseMaps
       >
         <NavigationControl />
         <GeolocateControl
           position="top-right"
-          // ref={geolocateControlRef}
           showUserHeading={true}
           showUserLocation={true}
           showAccuracyCircle={false}
@@ -107,20 +145,28 @@ const MapDisplay = () => {
         <Source
           id="park-zones"
           type="geojson"
-          data={geoJson as FeatureCollection}
+          data={geojsonData as FeatureCollection}
         >
           <Layer {...zoneLayer} />
           <Layer {...zooOutlineLayer} />
           <Layer {...zooOuterBoundaryLayer} />
         </Source>
+        <Marker longitude={103.79448518041511} latitude={1.4057907763256026}>
+          <img
+            className="tram-icons"
+            src="https://firebasestorage.googleapis.com/v0/b/project4-z.appspot.com/o/amenityicons%2Ftram.png?alt=media&token=bbbbc6d4-d5d3-4370-84ab-e8650261877a"
+            alt="tram-stop"
+          />
+        </Marker>
       </Map>
-      {locationId && (
+      {locationProperties && (
         <PopupInfo
           show={show}
           handleClose={closeModal}
-          locationId={locationId}
+          locationProperties={locationProperties}
         />
       )}
+      {/* <Example show={showOffCanvas} handleClose={closeOffCanvas} /> */}
     </>
   );
 };
