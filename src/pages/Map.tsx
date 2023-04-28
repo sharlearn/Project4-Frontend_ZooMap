@@ -1,6 +1,6 @@
 import axios from "axios";
 import { backendUrl } from "../constants";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { PopupInfo } from "../components/Popup";
 import { FeatureCollection } from "geojson";
 import Map, {
@@ -23,6 +23,12 @@ interface LocationProperties {
   iconUrl: string | null;
 }
 
+interface MapMarkerData {
+  name: string;
+  iconUrl: string;
+  coordinates: number[];
+}
+
 const MapDisplay = () => {
   //center coordinates for Singapore Zoo
   const centerLat = 1.40378;
@@ -38,12 +44,16 @@ const MapDisplay = () => {
   const [show, setShow] = useState<boolean>(false);
   const [locationProperties, setLocationProperties] =
     useState<LocationProperties | null>(null);
+  const [mapMarkerData, setMapMarkerData] = useState<MapMarkerData[] | null>(
+    null
+  );
 
   let getData = async () => {
     try {
       const data = await axios.get(`${backendUrl}/geojson`);
       //geoJson feature collection within data gotten
       setGeojsonData(data.data[0].data[0]);
+      setMapMarkerData(data.data[1].data);
     } catch (error) {
       console.log(error);
     }
@@ -52,6 +62,8 @@ const MapDisplay = () => {
   useEffect(() => {
     getData();
   }, []);
+
+  console.log(locationProperties);
 
   const handleClick = useCallback((event: any) => {
     if (event.features[0]) {
@@ -142,13 +154,21 @@ const MapDisplay = () => {
           <Layer {...zooOutlineLayer} />
           <Layer {...zooOuterBoundaryLayer} />
         </Source>
-        <Marker longitude={103.79448518041511} latitude={1.4057907763256026}>
-          <img
-            className="tram-icons"
-            src="https://firebasestorage.googleapis.com/v0/b/project4-z.appspot.com/o/amenityicons%2Ftram.png?alt=media&token=bbbbc6d4-d5d3-4370-84ab-e8650261877a"
-            alt="tram-stop"
-          />
-        </Marker>
+
+        {mapMarkerData &&
+          mapMarkerData.map((data, index) => (
+            <Marker
+              key={index}
+              longitude={data.coordinates[0]}
+              latitude={data.coordinates[1]}
+            >
+              <img
+                className="zone-markers"
+                src={data.iconUrl}
+                alt={data.name}
+              />
+            </Marker>
+          ))}
       </Map>
       {locationProperties && (
         <PopupInfo

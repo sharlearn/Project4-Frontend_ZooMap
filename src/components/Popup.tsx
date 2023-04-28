@@ -5,6 +5,7 @@ import Modal from "react-bootstrap/Modal";
 import { LocationModal } from "./LocationModal";
 import { AnimalModal } from "./AnimalModal";
 import { Animal } from "../list";
+import { ShawAmphitheaterModal } from "./ShowModal";
 
 interface LocationProperties {
   name: string;
@@ -69,6 +70,18 @@ export const PopupInfo = (props: ModalProp): JSX.Element => {
 
   if (!locationData || !animalsData || loading) {
     return <div>Loading...</div>;
+  }
+
+  if (props.locationProperties.type === "show") {
+    return (
+      <Modal
+        show={props.show}
+        onHide={props.handleClose}
+        className="base-modal"
+      >
+        <ShawAmphitheaterModal />
+      </Modal>
+    );
   }
 
   //If location is not a zone, to not show location modal
