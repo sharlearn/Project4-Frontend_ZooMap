@@ -1,3 +1,5 @@
+import Button from "react-bootstrap/Button";
+import Col from "react-bootstrap/Col";
 import Modal from "react-bootstrap/Modal";
 
 interface Location {
@@ -25,28 +27,33 @@ export const LocationModal = ({
   switchModals: (data: any) => void;
   banner: string | null;
 }) => {
-  console.log(banner);
   return (
-    <Modal.Body>
+    <Modal.Body className="modal-body">
       {banner && (
         <img className="location-banner" src={banner} alt="location banner" />
       )}
       <p>{locationData.description}</p>
       <h5>Animals In This Zone</h5>
-      <ul>
-        {animalsData.map((data, index) => (
-          <li className="list-unstyled" key={index}>
-            <button onClick={() => switchModals(data)}>
+      <div className="container">
+        <div className="d-flex flex-wrap">
+          {animalsData.map((data, index) => (
+            <Button
+              variant="link"
+              className="animal-buttons"
+              onClick={() => switchModals(data)}
+            >
               <img
-                className="animal-icons"
+                className="animal-icon-image"
                 src={data.iconUrl}
                 alt={data.name}
               />
-              <p>{data.name}</p>
-            </button>
-          </li>
-        ))}
-      </ul>
+              <div className="animal-image-overlay">
+                <div className="animal-name">{data.name}</div>
+              </div>
+            </Button>
+          ))}
+        </div>
+      </div>
     </Modal.Body>
   );
 };

@@ -1,14 +1,22 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { backendUrl } from "../constants";
+import Modal from "react-bootstrap/Modal";
 import { LocationModal } from "./LocationModal";
 import { AnimalModal } from "./AnimalModal";
-import { BaseModal } from "./BaseModal";
+import { Animal } from "../list";
+
+interface LocationProperties {
+  name: string;
+  locationId: number;
+  type: string;
+  iconUrl: string | null;
+}
 
 interface ModalProp {
   show: boolean;
   handleClose: any;
-  locationId: any;
+  locationProperties: LocationProperties;
 }
 
 interface Location {
@@ -16,37 +24,28 @@ interface Location {
   name: string;
   description: string;
   type: string;
-}
-
-interface AnimalDescription {
-  title: string;
-  content: string;
-}
-
-interface Animal {
-  id: number;
-  name: string;
-  bannerUrl: string;
-  iconUrl: string;
-  description: AnimalDescription[];
+  latitude: number;
+  longitude: number;
 }
 
 export const PopupInfo = (props: ModalProp): JSX.Element => {
   const [animalsData, setAnimalsData] = useState<Animal[]>();
   const [locationData, setLocationData] = useState<Location>();
   const [loading, setLoading] = useState(true);
-  const [dataType, setDataType] = useState<"location" | "animal">("location");
+  const [dataType, setDataType] = useState<"location" | "animal" | "null">(
+    "location"
+  );
   const [animalData, setAnimalData] = useState<Animal | null | undefined>();
 
   const getData = async () => {
     try {
       const location = await axios.get(
-        `${backendUrl}/location/${props.locationId}`
+        `${backendUrl}/location/${props.locationProperties.locationId}`
       );
       setLocationData(location.data);
 
       const animal = await axios.get<Animal[]>(
-        `${backendUrl}/animal/location/${props.locationId}`
+        `${backendUrl}/animal/location/${props.locationProperties.locationId}`
       );
       setAnimalsData(animal.data);
     } catch (error) {
@@ -59,8 +58,6 @@ export const PopupInfo = (props: ModalProp): JSX.Element => {
   }, []);
 
   const switchModals = (animalData: any) => {
-    console.log("this is firing");
-    console.log(animalData);
     if (dataType === "location") {
       setDataType("animal");
       setAnimalData(animalData);
@@ -74,26 +71,40 @@ export const PopupInfo = (props: ModalProp): JSX.Element => {
     return <div>Loading...</div>;
   }
 
+  //If location is not a zone, to not show location modal
+  if (props.locationProperties.type === "enclosure") {
+    return (
+      <Modal
+        show={props.show}
+        onHide={props.handleClose}
+        className="base-modal"
+      >
+        <AnimalModal
+          locationType={props.locationProperties.type}
+          animalData={animalsData[0]}
+          switchModals={switchModals}
+        />
+      </Modal>
+    );
+  }
+
   return (
-    <BaseModal
-      show={props.show}
-      handleClose={props.handleClose}
-      title={
-        dataType === "animal" && animalData
-          ? animalData.name
-          : locationData.name
-      }
-    >
+    <Modal show={props.show} onHide={props.handleClose}>
       {dataType === "location" && (
         <LocationModal
           locationData={locationData}
           animalsData={animalsData}
           switchModals={switchModals}
+          banner={props.locationProperties.iconUrl}
         />
       )}
       {dataType === "animal" && animalData && (
-        <AnimalModal animalData={animalData} switchModals={switchModals} />
+        <AnimalModal
+          locationType={props.locationProperties.type}
+          animalData={animalData}
+          switchModals={switchModals}
+        />
       )}
-    </BaseModal>
+    </Modal>
   );
 };

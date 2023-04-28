@@ -13,7 +13,6 @@ import Map, {
   LngLatBoundsLike,
   Marker,
 } from "react-map-gl";
-import Example from "../components/OffCanvas";
 
 const mapboxAccesstoken = process.env.REACT_APP_MAPBOX_ACCESSTOKEN as string;
 
@@ -39,7 +38,6 @@ const MapDisplay = () => {
   const [show, setShow] = useState<boolean>(false);
   const [locationProperties, setLocationProperties] =
     useState<LocationProperties | null>(null);
-  const [locationURL, setLocationURL] = useState<string | null>(null);
 
   let getData = async () => {
     try {
@@ -54,7 +52,6 @@ const MapDisplay = () => {
   useEffect(() => {
     getData();
   }, []);
-  console.log(geojsonData);
 
   const handleClick = useCallback((event: any) => {
     if (event.features[0]) {
@@ -109,11 +106,6 @@ const MapDisplay = () => {
     filter: ["==", ["get", "name"], "Zoo-Boundary"],
   };
 
-  const [showOffCanvas, setShowOffCanvas] = useState(false);
-
-  const closeOffCanvas = () => setShowOffCanvas(false);
-  const handleShowOffCanvas = () => setShowOffCanvas(true);
-
   return (
     <>
       <Map
@@ -129,7 +121,6 @@ const MapDisplay = () => {
         mapStyle="mapbox://styles/sharlearn/clgkze4hw008r01qqfxaih136"
         mapboxAccessToken={mapboxAccesstoken}
         interactiveLayerIds={["park-zones"]}
-        // onClick={handleShowOffCanvas}
         onClick={handleClick}
         reuseMaps
       >
@@ -166,7 +157,6 @@ const MapDisplay = () => {
           locationProperties={locationProperties}
         />
       )}
-      {/* <Example show={showOffCanvas} handleClose={closeOffCanvas} /> */}
     </>
   );
 };

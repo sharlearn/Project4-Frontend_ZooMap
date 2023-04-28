@@ -3,11 +3,45 @@
   height: 100dvh;
 }
 
-.animal-icons {
-  max-width: 100px;
+.animal-icon-image {
+  max-width: 150px;
+  display: block;
+  margin: 0;
+  padding: 0;
+}
+
+.animal-buttons {
+  margin: 0;
+  padding: 0;
+  display: block;
+}
+
+.modal-body {
+  background: #ffffea;
+  color: green;
+}
+
+.location-banner {
+  max-width: 100%;
+}
+
+.tram-icons {
+  width: 20px;
   height: auto;
 }
 
-.base-modal {
-  z-index: 999;
+.zone-icons {
+  width: 100px;
+}
+
+.nav-tabs .nav-item .nav-link {
+  background-color: #ffffce;
+}
+
+.nav-tabs .nav-item .nav-link.active {
+  background: #ffffea;
+}
+
+.quick-fact-boxes {
+  padding: 10px;
 }
