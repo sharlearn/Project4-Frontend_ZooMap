@@ -7,7 +7,7 @@ export const AnimalDescriptionTab = ({
   descriptions: AnimalDescription[];
 }) => {
   return (
-    <Carousel>
+    <Carousel variant="dark">
       {descriptions.map((data) => (
         <Carousel.Item>
           <div className="container" style={{ padding: "50px" }}>

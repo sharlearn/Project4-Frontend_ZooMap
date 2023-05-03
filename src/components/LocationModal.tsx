@@ -1,5 +1,4 @@
 import Button from "react-bootstrap/Button";
-import Col from "react-bootstrap/Col";
 import Modal from "react-bootstrap/Modal";
 
 interface Location {
@@ -38,17 +37,18 @@ export const LocationModal = ({
         <div className="d-flex flex-wrap">
           {animalsData.map((data, index) => (
             <Button
+              key={index}
               variant="link"
               className="animal-buttons"
               onClick={() => switchModals(data)}
             >
-              <img
-                className="animal-icon-image"
-                src={data.iconUrl}
-                alt={data.name}
-              />
-              <div className="animal-image-overlay">
-                <div className="animal-name">{data.name}</div>
+              <div className="animal-container container">
+                <img
+                  className="animal-icon-image"
+                  src={data.iconUrl}
+                  alt={data.name}
+                />
+                <div className="animal-icon-overlay">{data.name}</div>
               </div>
             </Button>
           ))}

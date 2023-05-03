@@ -15,9 +15,9 @@ export const AnimalIUCNTab = ({
       <Col style={{ fontWeight: "bold" }}>IUCN Status:</Col>
       <Col>{iucnStatus}</Col>
 
-      <Carousel>
+      <Carousel variant="dark">
         {iucnDescription.map((data) => (
-          <Carousel.Item>
+          <Carousel.Item key={data.title}>
             <div className="container" style={{ padding: "50px" }}>
               <h5>{data.title}</h5>
               <p>{data.description}</p>

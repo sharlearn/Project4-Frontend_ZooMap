@@ -2,7 +2,7 @@ import axios from "axios";
 import { backendUrl } from "../constants";
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { PopupInfo } from "../components/Popup";
-import { FeatureCollection } from "geojson";
+import { Feature, FeatureCollection } from "geojson";
 import Map, {
   Source,
   Layer,
@@ -47,6 +47,8 @@ const MapDisplay = () => {
   const [mapMarkerData, setMapMarkerData] = useState<MapMarkerData[] | null>(
     null
   );
+  const [enclosureCoordinates, setEnclosureCoordinates] =
+    useState<FeatureCollection | null>(null);
 
   let getData = async () => {
     try {
@@ -54,6 +56,7 @@ const MapDisplay = () => {
       //geoJson feature collection within data gotten
       setGeojsonData(data.data[0].data[0]);
       setMapMarkerData(data.data[1].data);
+      setEnclosureCoordinates(data.data[2].data);
     } catch (error) {
       console.log(error);
     }
@@ -62,8 +65,6 @@ const MapDisplay = () => {
   useEffect(() => {
     getData();
   }, []);
-
-  console.log(locationProperties);
 
   const handleClick = useCallback((event: any) => {
     if (event.features[0]) {
@@ -91,7 +92,7 @@ const MapDisplay = () => {
         "zone",
         "#000fff",
         "enclosure",
-        "yellow",
+        "#fff000",
         "green",
       ],
       "fill-opacity": 0.4,
@@ -154,7 +155,20 @@ const MapDisplay = () => {
           <Layer {...zooOutlineLayer} />
           <Layer {...zooOuterBoundaryLayer} />
         </Source>
-
+        <Source
+          id="enclosure-markers"
+          type="geojson"
+          data={enclosureCoordinates as FeatureCollection}
+        >
+          <Layer
+            type="symbol"
+            layout={{
+              // "icon-image": ["get", "iconUrl"],
+              // "icon-size": 1,
+              "text-field": ["format", ["get", "name"], { "font-scale": 0.8 }],
+            }}
+          />
+        </Source>
         {mapMarkerData &&
           mapMarkerData.map((data, index) => (
             <Marker

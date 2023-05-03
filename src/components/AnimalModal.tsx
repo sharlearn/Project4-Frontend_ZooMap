@@ -20,7 +20,7 @@ export const AnimalModal = ({
         <AnimalDataTabs data={animalData} />
       </Modal.Body>
       {locationType === "zone" && (
-        <Button variant="secondary" onClick={switchModals}>
+        <Button variant="light" onClick={switchModals}>
           Back to Zone
         </Button>
       )}
