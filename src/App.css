@@ -1,4 +1,91 @@
-.leaflet-container {
+.map-container {
   width: 100dvw;
   height: 100dvh;
+}
+
+.animal-buttons {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 140px;
+  height: 140px;
+}
+
+.animal-container {
+  width: 100%;
+  margin: 0;
+  padding: 0 !important;
+  height: auto;
+  display: inline-block;
+  position: relative;
+}
+
+.animal-icon-image {
+  width: 100%;
+  height: 100%;
+  display: block;
+  margin: 0;
+  padding: 0;
+}
+
+.animal-icon-overlay {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  padding-top: 40%;
+  top: 0;
+  left: 0;
+  background-color: #153e35;
+  color: #ffcc00;
+  font-weight: bold;
+  opacity: 0;
+  vertical-align: middle;
+}
+
+.animal-icon-overlay:hover {
+  opacity: 1;
+  transition: all 0.4s ease;
+}
+
+.nav-tabs .nav-item .nav-link {
+  background-color: #ffffce;
+  color: grey !important;
+}
+
+.nav-tabs .nav-item .nav-link.active {
+  background: #ffffea;
+}
+
+.quick-fact-boxes {
+  padding: 10px;
+}
+
+.nav-tabs .nav-item.show .nav-link,
+.nav-tabs .nav-link.active {
+  border: 3px solid blue;
+  color: green !important;
+}
+
+.modal-body {
+  background: #faf5e9;
+  color: #153e35;
+}
+
+.location-banner {
+  max-width: 100%;
+}
+
+.zone-markers {
+  width: 100px;
+}
+
+.nav-tabs .nav-item .nav-link {
+  background-color: #ffffce;
+}
+
+.nav-tabs .nav-item .nav-link.active {
+  background: #faf5e9;
+}
+
+.quick-fact-boxes {
+  padding: 10px;
 }

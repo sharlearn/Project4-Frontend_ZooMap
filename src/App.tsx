@@ -1,8 +1,9 @@
 import "./App.css";
-import Map from "./components/Map";
+import "bootstrap/dist/css/bootstrap.min.css";
+import MapDisplay from "./pages/Map";
 
 function App() {
-  return <Map />;
+  return <MapDisplay />;
 }
 
 export default App;
