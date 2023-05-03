@@ -8,8 +8,8 @@ export const AnimalDescriptionTab = ({
 }) => {
   return (
     <Carousel variant="dark">
-      {descriptions.map((data) => (
-        <Carousel.Item>
+      {descriptions.map((data, index) => (
+        <Carousel.Item key={index}>
           <div className="container" style={{ padding: "50px" }}>
             <h5>{data.title}</h5>
             <p>{data.content}</p>
