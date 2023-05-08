@@ -1,3 +1,5 @@
+<!-- A bit more comprehensive readme would have been good. How to run the app and all? What are the prerequisites, how to install etc. -->
+
 ## Zoo Map App
 
 ## Description
