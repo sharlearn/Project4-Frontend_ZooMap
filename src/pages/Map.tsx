@@ -16,6 +16,7 @@ import Map, {
 
 const mapboxAccesstoken = process.env.REACT_APP_MAPBOX_ACCESSTOKEN as string;
 
+// that you defined interfaces, sparks joy!
 interface LocationProperties {
   name: string;
   locationId: number;
@@ -54,9 +55,22 @@ const MapDisplay = () => {
     try {
       const data = await axios.get(`${backendUrl}/geojson`);
       //geoJson feature collection within data gotten
+      // since this all depends on the geojson data, why not use a single state object?
+      /*
+
+      {
+        geojson: data.data[0].data[0],
+        mapMarker: data.data[1].data,
+        enclosureCoords: data.data[2].data
+      }
+
+      */
       setGeojsonData(data.data[0].data[0]);
       setMapMarkerData(data.data[1].data);
       setEnclosureCoordinates(data.data[2].data);
+      // please note that whenever you do something like data.data[0].data you are possibly introducing bugs.
+      // What if data[0] is undefined? By right typescript should complain here.
+      // You should specify a type for data / the response here, and you could write more resilient code by TS alerting you.
     } catch (error) {
       console.log(error);
     }
@@ -67,6 +81,7 @@ const MapDisplay = () => {
   }, []);
 
   const handleClick = useCallback((event: any) => {
+    // a function will always return in the end, so the else return is redundant I think
     if (event.features[0]) {
       setShow(true);
       const { features } = event;
@@ -74,7 +89,7 @@ const MapDisplay = () => {
       const clickFeature = features[0].properties;
 
       setLocationProperties(clickFeature);
-    } else return;
+    }
   }, []);
 
   const closeModal = () => {
@@ -82,6 +97,7 @@ const MapDisplay = () => {
     setLocationProperties(null);
   };
 
+  // static info like such could be placed outside of the component
   const zoneLayer: FillLayer = {
     id: "park-zones",
     type: "fill",

@@ -1,6 +1,7 @@
 import Carousel from "react-bootstrap/Carousel";
 import { AnimalDescription } from "../list";
 
+// this seems to be a carousel, not a Tab
 export const AnimalDescriptionTab = ({
   descriptions,
 }: {

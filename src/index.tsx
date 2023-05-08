@@ -9,6 +9,7 @@ import {
   Link,
 } from "react-router-dom";
 
+// do we need a router if there is only one route?
 const router = createBrowserRouter([
   {
     path: "/",

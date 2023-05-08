@@ -7,6 +7,11 @@ import { AnimalModal } from "./AnimalModal";
 import { Animal } from "../list";
 import { ShawAmphitheaterModal } from "./ShowModal";
 
+enum DataTypes {
+  LOCATION = "location",
+  ANIMAL = "animal",
+}
+
 interface LocationProperties {
   name: string;
   locationId: number;
@@ -33,13 +38,17 @@ export const PopupInfo = (props: ModalProp): JSX.Element => {
   const [animalsData, setAnimalsData] = useState<Animal[]>();
   const [locationData, setLocationData] = useState<Location>();
   const [loading, setLoading] = useState(true);
-  const [dataType, setDataType] = useState<"location" | "animal" | "null">(
-    "location"
+  // could we create ENUMs for these static values of the Union Type?
+  const [dataType, setDataType] = useState<DataTypes.LOCATION | DataTypes.ANIMAL | "null">(
+    DataTypes.LOCATION
   );
   const [animalData, setAnimalData] = useState<Animal | null | undefined>();
 
   const getData = async () => {
     try {
+
+      // since these 2 calls don't depend on each other, I would make the request at the same time, instead of awaiting the results.
+      // Promise.all would work, I think there is also axios.all if I am not wrong!
       const location = await axios.get(
         `${backendUrl}/location/${props.locationProperties.locationId}`
       );
@@ -59,11 +68,11 @@ export const PopupInfo = (props: ModalProp): JSX.Element => {
   }, []);
 
   const switchModals = (animalData: any) => {
-    if (dataType === "location") {
-      setDataType("animal");
+    if (dataType === DataTypes.LOCATION) {
+      setDataType(DataTypes.ANIMAL);
       setAnimalData(animalData);
     } else {
-      setDataType("location");
+      setDataType(DataTypes.LOCATION);
       setAnimalData(null);
     }
   };
@@ -71,6 +80,21 @@ export const PopupInfo = (props: ModalProp): JSX.Element => {
   if (!locationData || !animalsData || loading) {
     return <div>Loading...</div>;
   }
+
+  // I think the conditional returns down here could be handled more dynamically.
+// We could create an object that returns is the child component of the modal.
+// We could also make the className conditional
+/*
+
+  <Modal
+        show={props.show}
+        onHide={props.handleClose}
+        ...(dataType !== keyof DataTypes && { className: "base-modal "}) // or something along these lines
+      >
+        {getChildComponent[<insert type here>]} // get component returned
+      </Modal>
+
+*/
 
   if (props.locationProperties.type === "show") {
     return (
